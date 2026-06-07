@@ -1,23 +1,16 @@
 import json
 from datetime import datetime, date, time
-import typing_extensions as typing
-from google import genai
-from google.genai import types
+from groq import AsyncGroq
 from hindsight_client import Hindsight
 
 from app.config import Settings
 from app.models import DeployEvent, IncidentReport, RiskAnalysis, MemoryItem
 
-class RiskOutput(typing.TypedDict):
-    risk_score: int
-    risk_level: str
-    reasoning: str
-    recommendation: str
 
 async def analyze_deploy(
     event: DeployEvent,
     hindsight: Hindsight,
-    gemini: genai.Client,
+    groq: AsyncGroq,
     settings: Settings
 ) -> RiskAnalysis:
     # Step 1: native async recall
@@ -62,21 +55,20 @@ reasoning explaining which past incidents influenced your score,
 and a concrete recommendation.
 """
 
-    # Step 4: async Gemini call with JSON schema
-    gemini_response = await gemini.aio.models.generate_content(
-        model=settings.gemini_model,
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            response_mime_type="application/json",
-            response_schema=RiskOutput,
-            temperature=0.2,
-            max_output_tokens=settings.gemini_max_output_tokens,
-        ),
+    # Step 4: async Groq call with JSON mode
+    groq_response = await groq.chat.completions.create(
+        model=settings.groq_model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=settings.groq_max_tokens,
+        temperature=0.2
     )
 
     # Step 5: parse and return
-    parsed = json.loads(gemini_response.text)
+    parsed = json.loads(groq_response.choices[0].message.content)
     return RiskAnalysis(
         risk_score=parsed["risk_score"],
         risk_level=parsed["risk_level"],
@@ -85,6 +77,7 @@ and a concrete recommendation.
         memories_used=len(memories),
         analyzed_at=datetime.utcnow(),
     )
+
 
 async def report_incident(
     incident: IncidentReport,
@@ -113,6 +106,7 @@ async def report_incident(
             "trigger": incident.trigger,
         }
     )
+
 
 async def get_service_memories(
     service: str,
