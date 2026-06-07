@@ -35,7 +35,7 @@ async def analyze_deploy(
 deployment incidents. Use the provided incident history to give 
 accurate risk assessments. Always reference specific past incidents 
 in your reasoning when available. Be conservative — when in doubt, 
-increase the risk score."""
+increase the risk score. You must output your response as a valid JSON object."""
 
     user_prompt = f"""
 Analyze the deployment risk for the following event:
@@ -50,9 +50,11 @@ INCIDENT HISTORY FROM MEMORY:
 {memory_text}
 
 Based on this history, assess the deployment risk.
-Return risk_score as integer 0-100, risk_level as low/medium/high,
-reasoning explaining which past incidents influenced your score,
-and a concrete recommendation.
+Return a JSON object with exactly these keys:
+- "risk_score": integer 0-100
+- "risk_level": string ("low", "medium", or "high")
+- "reasoning": string explaining which past incidents influenced your score
+- "recommendation": string with a concrete recommendation
 """
 
     # Step 4: async Groq call with JSON mode
