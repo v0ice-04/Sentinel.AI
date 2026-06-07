@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 hindsight-client
-google-genai
+groq
 python-dotenv
 pydantic
 pydantic-settings

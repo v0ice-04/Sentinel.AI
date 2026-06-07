@@ -17,7 +17,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from hindsight_client import Hindsight
-from google import genai
+from groq import AsyncGroq
 import structlog
 
 # Configure structlog to output JSON format
@@ -44,8 +44,8 @@ async def lifespan(app: FastAPI):
         api_key=settings.hindsight_api_key or None,
     )
     
-    # Initialize Gemini client
-    app.state.gemini = genai.Client(api_key=settings.gemini_api_key)
+    # Initialize Groq client
+    app.state.groq = AsyncGroq(api_key=settings.groq_api_key)
     
     # Create memory bank if not exists — run sync call in thread to avoid event loop conflict
     def _create_bank():

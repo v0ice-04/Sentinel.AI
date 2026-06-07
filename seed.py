@@ -13,7 +13,6 @@ if not hasattr(aiohttp, "ClientProxyConnectionError"):
 import asyncio
 from datetime import date, datetime, time
 from hindsight_client import Hindsight
-from google import genai
 from app.config import get_settings
 from app.models import IncidentReport
 from app.agent_core import report_incident

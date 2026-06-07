@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Body
 from hindsight_client import Hindsight
-from google import genai
+from groq import AsyncGroq
 import structlog
 
 from app.config import Settings, get_settings
-from app.dependencies import get_hindsight, get_gemini
+from app.dependencies import get_hindsight, get_groq
 from app.models import DeployEvent, IncidentReport, RiskAnalysis
 from app.agent_core import analyze_deploy, report_incident
 
@@ -15,10 +15,10 @@ router = APIRouter(prefix="/deploy", tags=["deploy"])
 async def analyze(
     event: DeployEvent = Body(...),
     hindsight: Hindsight = Depends(get_hindsight),
-    gemini: genai.Client = Depends(get_gemini),
+    groq: AsyncGroq = Depends(get_groq),
     settings: Settings = Depends(get_settings)
 ):
-    result = await analyze_deploy(event, hindsight, gemini, settings)
+    result = await analyze_deploy(event, hindsight, groq, settings)
     logger.info(
         "Deployment analyzed",
         service=event.service,
