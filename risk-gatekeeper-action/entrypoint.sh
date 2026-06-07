@@ -44,7 +44,7 @@ echo "→ Querying Sentinel.AI agent..."
 RESPONSE=$(curl -s -w "\n%{http_code}" \
   -X POST "${SENTINEL_URL}/api/v1/deploy/analyze" \
   -H "Content-Type: application/json" \
-  -H "X-Sentinel-API-Key: ${API_KEY}" \
+  -H "x-api-key: ${API_KEY}" \
   -d "$PAYLOAD" \
   --max-time 30 \
   --retry 2 \

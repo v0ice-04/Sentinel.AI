@@ -9,15 +9,19 @@ def get_hindsight(request: Request) -> Hindsight:
 def get_groq(request: Request) -> AsyncGroq:
     return request.app.state.groq
 
-def verify_api_key(x_api_key: str = Header(None)):
-    if not x_api_key:
+def verify_api_key(
+    x_api_key: str = Header(None),
+    x_sentinel_api_key: str = Header(None)
+):
+    key = x_api_key or x_sentinel_api_key
+    if not key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing x-api-key header",
         )
     db = SessionLocal()
     try:
-        project = db.query(Project).filter(Project.api_key == x_api_key).first()
+        project = db.query(Project).filter(Project.api_key == key).first()
         if not project:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
