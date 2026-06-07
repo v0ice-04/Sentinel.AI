@@ -7,9 +7,9 @@ os.environ["SSL_CERT_FILE"] = certifi.where()
 
 # Monkey-patch missing aiohttp attributes for compatibility with aiohttp 3.9.x
 if not hasattr(aiohttp, "ClientConnectorDNSError"):
-    aiohttp.ClientConnectorDNSError = aiohttp.ClientConnectorError
+    aiohttp.ClientConnectorDNSError = aiohttp.ClientConnectorError  # type: ignore
 if not hasattr(aiohttp, "ClientProxyConnectionError"):
-    aiohttp.ClientProxyConnectionError = aiohttp.ClientConnectorError
+    aiohttp.ClientProxyConnectionError = aiohttp.ClientConnectorError  # type: ignore
 
 import time
 from contextlib import asynccontextmanager

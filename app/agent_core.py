@@ -70,7 +70,8 @@ Return a JSON object with exactly these keys:
     )
 
     # Step 5: parse and return
-    parsed = json.loads(groq_response.choices[0].message.content)
+    content = groq_response.choices[0].message.content
+    parsed = json.loads(content or "{}")
     return RiskAnalysis(
         risk_score=parsed["risk_score"],
         risk_level=parsed["risk_level"],
@@ -125,7 +126,7 @@ async def get_service_memories(
     return [
         MemoryItem(
             text=r.text,
-            fact_type=r.type,
+            fact_type=r.type or "unknown",
             context=r.context,
             occurred_start=str(r.occurred_start) if r.occurred_start else None,
             retrieved_at=datetime.utcnow(),
