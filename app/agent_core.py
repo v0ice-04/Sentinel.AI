@@ -20,7 +20,14 @@ async def analyze_deploy(
         max_tokens=settings.recall_max_tokens,
         budget=settings.recall_budget,
     )
-    memories = recall_response.results
+    raw_memories = recall_response.results
+    service_lower = event.service.lower()
+    memories = [
+        m for m in raw_memories
+        if (m.metadata and m.metadata.get("service") == event.service) or
+           (m.metadata and m.metadata.get("service") == service_lower) or
+           (service_lower in m.text.lower())
+    ]
 
     # Step 2: build memory text
     if memories:
@@ -123,6 +130,15 @@ async def get_service_memories(
         budget="mid",
     )
 
+    raw_results = recall_response.results
+    service_lower = service.lower()
+    filtered_results = [
+        r for r in raw_results
+        if (r.metadata and r.metadata.get("service") == service) or
+           (r.metadata and r.metadata.get("service") == service_lower) or
+           (service_lower in r.text.lower())
+    ]
+
     return [
         MemoryItem(
             text=r.text,
@@ -131,5 +147,5 @@ async def get_service_memories(
             occurred_start=str(r.occurred_start) if r.occurred_start else None,
             retrieved_at=datetime.utcnow(),
         )
-        for r in recall_response.results
+        for r in filtered_results
     ]
