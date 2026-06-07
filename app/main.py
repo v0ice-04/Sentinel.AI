@@ -32,7 +32,7 @@ structlog.configure(
 logger = structlog.get_logger()
 
 from app.config import get_settings
-from app.routers import deploy, memory
+from app.routers import deploy, memory, projects, ws
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -117,3 +117,5 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Include routers
 app.include_router(deploy.router, prefix="/api/v1")
 app.include_router(memory.router, prefix="/api/v1")
+app.include_router(projects.router, prefix="/api/v1")
+app.include_router(ws.router, prefix="/api/v1")

@@ -1,0 +1,50 @@
+name: 'Sentinel.AI Risk Gatekeeper'
+description: 'Query the Sentinel.AI agent for a risk assessment before deploying. Fails the pipeline if the risk is too high.'
+author: 'SentinelAI'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  api-key:
+    description: 'Your Sentinel.AI API key (store as a GitHub secret)'
+    required: true
+  service:
+    description: 'The name of the service being deployed (e.g. user-auth-service)'
+    required: true
+  environment:
+    description: 'Target environment (e.g. production, staging)'
+    required: false
+    default: 'production'
+  change-type:
+    description: 'Type of change (e.g. code-deploy, config-change, db-migration)'
+    required: false
+    default: 'code-deploy'
+  sentinel-url:
+    description: 'Base URL of your Sentinel.AI backend (override for self-hosted)'
+    required: false
+    default: 'http://localhost:8000'
+  risk-threshold:
+    description: 'Maximum acceptable risk score (0–100). Pipeline fails above this.'
+    required: false
+    default: '70'
+
+outputs:
+  risk-score:
+    description: 'The numeric risk score (0–100) returned by Sentinel.AI'
+  risk-level:
+    description: 'Human-readable risk level (LOW, MEDIUM, HIGH, CRITICAL)'
+  recommendation:
+    description: 'Short recommendation from the Sentinel.AI agent'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    SENTINEL_API_KEY: ${{ inputs.api-key }}
+    SENTINEL_SERVICE: ${{ inputs.service }}
+    SENTINEL_ENVIRONMENT: ${{ inputs.environment }}
+    SENTINEL_CHANGE_TYPE: ${{ inputs.change-type }}
+    SENTINEL_URL: ${{ inputs.sentinel-url }}
+    SENTINEL_RISK_THRESHOLD: ${{ inputs.risk-threshold }}

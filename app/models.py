@@ -39,3 +39,11 @@ class HealthResponse(BaseModel):
     version: str = "1.0.0"
     memory_bank: str
     timestamp: datetime
+
+class ProjectCreate(BaseModel):
+    name: str
+
+class ProjectResponse(BaseModel):
+    id: int
+    name: str
+    api_key: str
